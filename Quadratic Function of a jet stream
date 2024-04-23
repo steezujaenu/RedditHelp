@@ -1,0 +1,58 @@
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+import numpy as np
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+
+# Define quadratic Function for the rocket
+def trajectory(x):
+    return -0.015015 * x ** 2 + 22.5
+
+# Picture of the Rocket. Sorry Part of the Path removed, due to security?
+rakete_img = plt.imread('png-transparent-rocket-spacecraft-rocket-spacecraft-fictional-character-desktop-wallpaper.png')
+
+
+# Picture of the Moon.
+mond_img = plt.imread('moon-isolated-on-transparent-free-png.webp')
+
+# Creating Figure for the Figure and axis of the animation 
+fig, ax = plt.subplots()
+
+# boundaries of the axis
+ax.set_xlim(0, 40)
+ax.set_ylim(0, 40)
+
+# Offset Image of the moon
+mond = OffsetImage(mond_img, zoom=0.2)
+
+# Inserting the moon to the y axis 
+mond_position = trajectory(37.7) - 1  # Verschiebung um 1 Einheit nach unten
+ab_mond = AnnotationBbox(mond, (37.7, mond_position), frameon=False, xycoords='data')
+ax.add_artist(ab_mond)
+
+# Inserting Offset Image Object of the Rocket 
+rakete = OffsetImage(rakete_img, zoom=0.02)
+ab_rakete = AnnotationBbox(rakete, (0, trajectory(0)), frameon=False, xycoords='data')
+ax.add_artist(ab_rakete)
+
+# Saving the trajectroy as Background 
+x_vals = np.linspace(0, 150, num=1000)
+y_vals = trajectory(x_vals)
+flugbahn, = ax.plot(x_vals, y_vals, 'r--', lw=0.5)
+
+# Intialize the animation. 
+def init():
+    return [ab_rakete]
+
+# Define the Animationfunction 
+def animate(i):
+    # Aktualisiere die x- und y-Daten für die Rakete
+    x = min(i, 37.7)  # Begrenze die x-Position auf den Mond
+    y = trajectory(x)
+    ab_rakete.xybox = (x, y)
+    return [ab_rakete]
+
+# Creating the Animation 
+ani = animation.FuncAnimation(fig, animate, init_func=init, frames=np.arange(0, 60, 1), interval=50, blit=True)
+
+# Display the animation
+plt.show()
